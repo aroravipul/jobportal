@@ -60,11 +60,8 @@
                    </div>
                   <div class="form-group">
                     <label for="uid">Aadhar Card number</label>
-                    <input type="text" name="uid" class="form-control" required>
-                  </div>
-                  <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" name="email" class="form-control" required>
+                    <input type="text" name="uid" class="form-control" 
+                    value="{{ user.username }}" pattern="[0-9]{12}" required>
                   </div>
                   <div class="form-group">
                     <label for="password2">Password</label>
@@ -72,7 +69,8 @@
                   </div>
                   <div class="form-group">
                     <label for="password">Confirm Password</label>
-                    <input type="password" name="password2" class="form-control" required>
+                    <input type="password" name="password2" class="form-control" placeholder="Same as Password"
+                    required>
                   </div>         
                 
                 <input type="submit" value="Register" class="btn btn-secondary btn-block">
@@ -93,10 +91,6 @@
                   <div class="form-group">
                     <label for="firmname">Firm name</label>
                     <input type="text" name="firmname" class="form-control" required>
-                  </div>
-                  <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" name="email" class="form-control" required>
                   </div>
                   <div class="form-group">
                     <label for="password2">Password</label>

@@ -1,0 +1,341 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load static %}
+{% block content %}
+
+<!--
+<section id="showcase-inner" class="py-5 text-white">
+    <div class="container">
+      <div class="row text-center">
+        <div class="col-md-12">
+          <h1 class="display-4">{{ employer.firm_name }}</h1>
+          <p class="lead">
+            <i class="fas fa-map-marker"></i> {{ employer.firm_name.city }}</p>
+        </div>
+      </div>
+    </div>
+  </section>-->
+  <!-- Alert -->
+{% include 'partials/_alerts.html' %}
+  <!-- Breadcrumb -->
+  <section id="bc" class="mt-3">
+    <div class="container">
+      <nav>
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item">
+            <a href="{% url 'index' %}">Home</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a href="{% url 'employers' %}">Employers</a>
+          </li>
+          <li class="breadcrumb-item active">Ad id: {{ employer.id }}</li>
+        </ol>
+      </nav>
+    </div>
+  </section>
+
+  <!-- Listing -->
+  <section id="listing" class="py-4">
+    <div class="container">
+      <a href="{% url 'employers' %}" class="btn btn-light mb-4">Back To Employers List</a>
+      <div class="row">
+        <div class="col-md-9">
+          <!-- Home Main Image 
+          <img src="{{ employer.self_photo.url }}" alt="" class="img-main img-fluid mb-3">-->
+          <!-- Thumbnails 
+          <div class="row mb-5 thumbs">
+            <div class="col-md-2">
+              <a href="assets/img/homes/home-inside-1.jpg" data-lightbox="home-images">
+                <img src="assets/img/homes/home-inside-1.jpg" alt="" class="img-fluid">
+              </a>
+            </div>
+            <div class="col-md-2">
+              <a href="assets/img/homes/home-inside-2.jpg" data-lightbox="home-images">
+                <img src="assets/img/homes/home-inside-2.jpg" alt="" class="img-fluid">
+              </a>
+            </div>
+            <div class="col-md-2">
+              <a href="assets/img/homes/home-inside-3.jpg" data-lightbox="home-images">
+                <img src="assets/img/homes/home-inside-3.jpg" alt="" class="img-fluid">
+              </a>
+            </div>
+            <div class="col-md-2">
+              <a href="assets/img/homes/home-inside-4.jpg" data-lightbox="home-images">
+                <img src="assets/img/homes/home-inside-4.jpg" alt="" class="img-fluid">
+              </a>
+            </div>
+            <div class="col-md-2">
+              <a href="assets/img/homes/home-inside-5.jpg" data-lightbox="home-images">
+                <img src="assets/img/homes/home-inside-5.jpg" alt="" class="img-fluid">
+              </a>
+            </div>
+            <div class="col-md-2">
+              <a href="assets/img/homes/home-inside-6.jpg" data-lightbox="home-images">
+                <img src="assets/img/homes/home-inside-6.jpg" alt="" class="img-fluid">
+              </a>
+            </div>
+          </div> -->
+          <!-- Fields -->
+          <div class="row mb-5 fields">
+            <div class="col-md-6">
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item text-secondary">
+                  <i class="fas fa-th-large"></i> Requirement :
+                  <span class="float-right">{{ employer.requirement }}
+                  </span>
+                </li>
+                <li class="list-group-item text-secondary">
+                  <i class="fas fa-th-large"></i> Firm Category:
+                  <span class="float-right">{{ employer.requirement.job_category }}</span>
+                </li>
+                <li class="list-group-item text-secondary">
+                  <i class="fas fa-th-large"></i> Salary offered:
+                  <span class="float-right">{{ employer.salary_offered }} {{ employer.salary_frequency }}</span>
+                </li>
+                {% if contacts_by_user %}
+                <li class="list-group-item text-secondary">
+                  <div id="employer_ph" >
+                  <i class="fas fa-th-large"></i> Employer Phone Number:
+                  <span class="float-right">{{ employer.firm.phone }} </span></div>
+                </li>
+                {% endif %}
+                
+              </ul>
+            </div>
+            <div class="col-md-6">
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item text-secondary">
+                  <i class="fas fa-th-large"></i> Number of vacancies:
+                  <span class="float-right"> {{ employer.no_of_requirments }}</span>
+                </li>
+                <li class="list-group-item text-secondary">
+                  <i class="fas fa-th-large"></i> Preferred Shift:
+                  <span class="float-right"> {{ employer.shift_offered }}
+                  </span>
+                </li>
+                <li class="list-group-item text-secondary">
+                  <i class="fas fa-th-large"></i> Job Posted on:
+                  <span class="float-right">{{ employer.create_date }}
+                  </span>
+                </li>
+                <!--
+                <li class="list-group-item text-secondary">
+                  <i class="fas fa-calendar"></i> Qualifications:
+                  <span class="float-right">{{ employee.qualification }}</span>
+                </li>
+                <li class="list-group-item text-secondary">
+                  <i class="fas fa-bed"></i> Applied on:
+                  <span class="float-right">{{ employee.create_date }}
+                  </span>
+                </li>  -->
+
+
+              </ul>
+            </div>
+          </div>
+
+          <!-- Description 
+          <div class="row mb-5">
+            <div class="col-md-12">
+              Lorem ipsum dolor sit amet consectetur adipisicing elit. Mollitia recusandae esse reiciendis officia omnis non rerum dicta
+              cupiditate nostrum molestias deserunt aut minus inventore animi atque, consequuntur ad fugit. Possimus culpa
+              blanditiis repellendus ipsa similique ullam, natus error dolor harum.
+            </div>
+          </div>-->
+        </div>
+        
+        <div class="col-md-3">
+            <!--
+          <div class="card mb-3">
+            <img class="card-img-top" src="assets/img/realtors/kyle.jpg" alt="Seller of the month">
+            <div class="card-body">
+              <h5 class="card-title">Property Realtor</h5>
+              <h6 class="text-secondary">Kyle Brown</h6>
+            </div>
+          </div>-->
+          <button class="btn-primary btn-block btn-lg" data-toggle="modal" data-target="#inquiryModal">Send Interest</button>
+          {% if contacts_by_user_count < 5 %}
+          <button class="btn-primary btn-block btn-lg" onclick="javascript:submit_it();">
+           
+            Show Contact
+          
+          </button>
+          {% else %}
+          <br><b><p>You have reached maximum limit of Employer Contact enquiry. Please upgrade your subscription.
+            However you can still 'Send Interest'. </b>
+          </p>
+
+          {% endif %} 
+          <script type="text/javascript">
+            function submit_it()
+            {
+              document.contact_form.submit();
+            }
+            
+          </script>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Inquiry Modal -->
+  {% if user.is_authenticated %}
+  {% if logged_user == 'employee' %}
+  <div class="modal fade" id="inquiryModal" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="inquiryModalLabel">Send Interest</h5>
+          <button type="button" class="close" data-dismiss="modal">
+            <span>&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <!-- start of enquiry form -->
+          
+          <form action="{% url 'contact_employer' employer.id %}" method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+              <label for="requirement" class="col-form-label">Job Name:</label>
+              <input type="text" name="requirement" class="form-control" 
+              value="{{ employer.requirement }}" >
+            </div>
+            <div class="form-group">
+              <label for="uid" class="col-form-label">Employee Id:</label>
+              <input type="text" name="uid" class="form-control" 
+              value="{{ user.username }}" >
+            </div>
+            <div class="form-group">
+              <label for="fullname" class="col-form-label">Employee Name:</label>
+              <input type="text" name="fullname" class="form-control" 
+              value="{{ user.first_name }} {{ user.last_name }}" >
+            </div>
+            
+            <!--
+            <div class="form-group">
+              <label for="phone" class="col-form-label">Phone:</label>
+              <input type="text" name="phone" class="form-control" 
+              value="12121212">
+            </div> -->
+            
+            <hr>
+            <input type="submit" value="Send" class="btn btn-block btn-secondary">
+          </form>
+            
+        </div>
+      </div>
+    </div>
+  </div>
+  {% else %}
+
+  {% endif %}
+          <!-- End of Enquiry form -->
+
+          {% else %}
+          <div class="modal fade" id="inquiryModal" role="dialog">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="inquiryModalLabel">Please register first</h5>
+                  <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+          <form action="{% url 'register_er' %}" enctype="multipart/form-data" method="POST">
+            <div id="employerreg" class="form-group" >
+               {% csrf_token %}
+               <div class="form-group">
+                <label for="first_name">First Name</label>
+                <input type="text" name="first_name" class="form-control" required>
+               </div>
+               <div class="form-group">
+                 <label for="last_name">Last Name</label>
+                 <input type="text" name="last_name" class="form-control" required>
+               </div>
+              <div class="form-group">
+                <label for="firmname">Firm name</label>
+                <input type="text" name="firmname" class="form-control" required>
+              </div>
+              <div class="form-group">
+                <label for="password2">Password</label>
+                <input type="password" name="password" class="form-control" required>
+              </div>
+              <div class="form-group">
+                <label for="password">Confirm Password</label>
+                <input type="password" name="password2" class="form-control" required>
+              </div>             
+               <!--   {{ employer_form.as_p }} -->
+              
+            <!-- end if -->
+            <input type="submit" value="Register" class="btn btn-secondary btn-block">
+
+            </div>
+        </form>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Contact -->
+  {% if user.is_authenticated %}
+  {% if logged_user == 'employee' %}
+  <div class="modal" id="contactModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="inquiryModalLabel">Send Interest</h5>
+          <button type="button" class="close" data-dismiss="modal">
+            <span>&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <!-- start of enquiry form -->
+          
+          <form name="contact_form" action="{% url 'contact_employer' employer.id %}" method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+              <label for="requirement" class="col-form-label">Job Name:</label>
+              <input type="text" name="requirement" class="form-control" 
+              value="{{ employer.requirement }}" >
+            </div>
+            <div class="form-group">
+              <label for="uid" class="col-form-label">Employee Id:</label>
+              <input type="text" name="uid" class="form-control" 
+              value="{{ user.username }}" >
+            </div>
+            <div class="form-group">
+              <label for="fullname" class="col-form-label">Employee Name:</label>
+              <input type="text" name="fullname" class="form-control" 
+              value="{{ user.first_name }} {{ user.last_name }}" >
+            </div>
+            <div class="form-group">
+              <label for="phone" class="col-form-label">Employee Name:</label>
+              <input type="text" name="phone" class="form-control" 
+              value="{{ employer.firm.phone }}" >
+            </div>
+            
+            <!--
+            <div class="form-group">
+              <label for="phone" class="col-form-label">Phone:</label>
+              <input type="text" name="phone" class="form-control" 
+              value="12121212">
+            </div> -->
+            
+            <hr>
+            <input type="submit" value="Send" class="btn btn-block btn-secondary">
+          </form>
+            
+        </div>
+      </div>
+    </div>
+  </div>
+  {% else %}
+
+  {% endif %}
+  {% endif %}
+
+{% endblock %}

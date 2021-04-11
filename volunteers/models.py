@@ -7,7 +7,7 @@ class Volunteer(models.Model):
     designation = models.CharField(max_length=20)
     email = models.EmailField(max_length=100)
     phone = models.CharField(max_length=100)
-    no_of_registrations = models.IntegerField(default=0)
+    #no_of_registrations = models.IntegerField(default=0)
     hire_date = models.DateTimeField(default=datetime.now, blank=True)
     def __str__(self):
         return self.name

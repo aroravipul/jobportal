@@ -1,0 +1,309 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Alert -->
+{% include 'partials/_alerts.html' %}
+
+<script type="text/javascript">
+
+    function yesnoCheck1() 
+        {
+        if (document.getElementById('experienced').checked) 
+        {
+            document.getElementById('prev_work_exp').style.display = 'block';
+            
+        } 
+        else if (document.getElementById('not_experienced').checked)
+        {
+            document.getElementById('prev_work_exp').style.display = 'none';
+        }
+    }
+
+</script>
+
+{% if user.is_authenticated %}
+<section id="register" class="bg-light py-5">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6 mx-auto">
+          <div class="card">
+            <div class="card-header bg-primary text-white">
+              <h4>
+                <i class="fas fa-user-plus"></i> Edit Your profile</h4>
+            </div>
+            <div class="card-body">
+                <form action="{% url 'profile_ee' %}" method="POST" enctype="multipart/form-data">
+                  {% csrf_token %}
+                  <!--<div class="form-group">
+                  {{ employee_form.as_p }}
+                </div>
+            -->
+                      <div class="form-group">
+                      <label for="volunteer">Volunteer: </label>
+                      <select name="volunteer" class="form-control">
+                        <option selected="true" value="{{ employee.volunteer }}">
+                            {% if employee %}
+                            {{ employee.volunteer }}
+                            {% else %}
+                            {% endif %}
+                            </option>
+                          {% for volunteer in volunteers %}
+                            <option value="{{ volunteer.name }}">{{ volunteer.name }}</option>
+                          {% endfor %}
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label for="uid">Aadhar Card Number: </label>
+                      <input type="text" name="uid" class="form-control" 
+                      value="{{ user.username }}" pattern="[0-9]{12}" required>
+                    </div>
+                    <div class="form-group">
+                      <label for="first_name">First Name: </label>
+                      <input type="text" name="first_name" class="form-control" style="text-transform: capitalize;"
+                      value="{{ user.first_name }}" required>
+                    </div>
+                    <div class="form-group">
+                      <label for="last_name">Last Name: </label>
+                      <input type="text" name="last_name" class="form-control" style="text-transform: capitalize;"
+                      value="{{ user.last_name }}" required>
+                    </div>
+                    <div class="form-group">
+                      <label for="age">Age: </label>
+                      <input type="text" name="age" class="form-control" 
+                      value="{{ employee.age }}" pattern="[1-9]{1}[0-9]{1}" required 
+                      {% if employee.age %}
+                      readonly
+                      {% else %}
+                      {% endif %}>
+
+                    </div>
+                    <div class="form-group">
+                      <label for="gender">Gender: </label>
+                      <select name="gender" class="form-control">
+                        <option selected="true" value="{{ employee.gender }}">{{ employee.gender }}</option>
+                          {% for key,value in gender_choices %}
+                            <option value="{{ value }}">{{ value }}</option>
+                          {% endfor %}
+                      </select>
+                    </select>
+                    </div> 
+                    <div class="form-group">
+                        <label for="phone">Phone Number: </label>
+                        
+                        <input type="tel" name="phone" class="form-control" 
+                        placeholder="e.g. 9876543210" pattern="[6-9]{1}[0-9]{9}" 
+                        value="{{ employee.phone }}" required>
+                      </div> 
+                      <div class="form-group">
+                        <label for="city">City: </label>
+                        <input type="text" name="city" class="form-control" style="text-transform: capitalize;"
+                        value="{{ employee.city }}" required>
+                      </div> 
+                      <div class="form-group">
+                        <label for="job_preference1">First Job Preference: </label>
+                        <select name="job_preference1" class="form-control">
+                            <option selected="true" value="{{ employee.job_preference1 }}">
+                                    {{ employee.job_preference1 }}</option>
+                              {% for job in jobs %}
+                                <option value="{{ job.job_name }}">{{ job.job_name }} in {{ job.job_category }}</option>
+                              {% endfor %}
+                          </select>
+                      </div> 
+                      <div class="form-group">
+                        <label for="job_preference2">Second Job Preference: </label>
+                        <select name="job_preference2" class="form-control">
+                            <option selected="true" value="{{ employee.job_preference2 }}">{{ employee.job_preference2 }}</option>
+                              {% for job in jobs %}
+                                <option value="{{ job.job_name }}">{{ job.job_name }} in {{ job.job_category }}</option>
+                              {% endfor %}
+                          </select>
+                      </div> 
+                      <div class="form-group">
+                        <label for="job_preference3">Third Job Preference: </label>
+                        <select name="job_preference3" class="form-control">
+                            <option selected="true" value="{{ employee.job_preference3 }}">{{ employee.job_preference3 }}</option>
+                              {% for job in jobs %}
+                                <option value="{{ job.job_name }}">{{ job.job_name }} in {{ job.job_category }}</option>
+                              {% endfor %}
+                          </select>
+                      </div> 
+                      <div class="form-group">
+                        <label for="is_experienced">Are you experienced?: </label>
+                        
+                        <input type="radio" onclick="javascript:yesnoCheck1();" id="experienced" 
+                        name="is_experienced" value="True" 
+                        {% if employee.is_experienced == True %}
+                        checked = "checked"
+                        {% endif %}>
+                        <label for="experienced">Yes</label>
+                        <input type="radio" onclick="javascript:yesnoCheck1();" id="not_experienced" 
+                        name="is_experienced" value="False" 
+                        {% if employee.is_experienced == False %}
+                        checked = "checked"
+                        {% endif %}>
+                        <label for="not_experienced">No</label>
+                      </div> 
+                      <div class="form-group" id="prev_work_exp" style="display:none">
+                        <label for="prev_work_exp">Your previous work experience: </label>
+                        <input type="text" name="prev_work_exp" style="text-transform: capitalize;"
+                        class="form-control" 
+                        value="{{ employee.prev_work_exp }}" >
+                      </div> 
+                      <div class="form-group">
+                        <label for="qualification">Qualification: </label>
+                        <select name="qualification" class="form-control">
+                            <option selected="true" value = "{{ employee.qualification}}">
+                                {{ employee.qualification }}</option>
+                              {% for key,value in qualification_choices %}
+                                <option value="{{ value }}">{{ value }}</option>
+                              {% endfor %}
+                          </select>
+                      </div> 
+                      <div class="form-group">
+                        <label for="exp_salary">Expected Salary: </label>
+                        <input type="number" name="exp_salary" class="form-control" 
+                        value="{{ employee.exp_salary }}" min='0' required>
+                      </div> 
+                      <div class="form-group">
+                        <label for="exp_salary_frequency">Frequency of salary: </label>
+                        <select name="exp_salary_frequency" class="form-control">
+                            <option selected="true" value="{{ employee.exp_salary_frequency }}">
+                                {{ employee.exp_salary_frequency }}</option>
+                              {% for key,value in salary_choices %}
+                                <option value="{{ value }}">{{ value }}</option>
+                              {% endfor %}
+                          </select>
+                      </div> 
+                      <div class="form-group">
+                        <label for="pref_shift">Prefered Shift: </label>
+                        <select name="pref_shift" class="form-control">
+                            <option selected="true" value="{{ employee.pref_shift }}" >
+                                {{ employee.pref_shift }}</option>
+                              {% for key,value in shift_choices %}
+                                <option value="{{ value }}">{{ value }}</option>
+                              {% endfor %}
+                          </select>
+                      </div> 
+                      <div class="form-group">
+                        <label for="pref_location">Prefered Location: </label>
+                        <input type="text" name="pref_location" class="form-control" style="text-transform: capitalize;"
+                        value="{{ employee.pref_location }}" required>
+                      </div> 
+
+                      <div class="form-group">
+                        <label for="uid_photo_front">Aadhar Card Photo (Front side): 
+                          {% if employee.uid_photo_front.url %}
+                          <div class="col-md-3">
+                            <img src="{{ employee.uid_photo_front.url }}" alt="" class="img-main img-fluid mb-3" 
+                            height="200px" width="200px">
+                          </div>
+                          {% endif %} </label>
+                        <input type="file" name="uid_photo_front" class="form-control" accept="image/png, image/jpeg" 
+                        {% if employee.uid_photo_front.url %}
+                        value="{{ employee.uid_photo_front.url }}"
+                        readonly
+                        {% else %}
+                        required
+                        {% endif %}>
+                      </div> 
+                      <div class="form-group">
+                        <label for="uid_photo_back">Aadhar Card Photo (Back side): 
+                          {% if employee.uid_photo_back.url %}
+                          <div class="col-md-3">
+                            <img src="{{ employee.uid_photo_back.url }}" alt="" class="img-main img-fluid mb-3" 
+                            height="200px" width="200px">
+                          </div>
+                          {% endif %} </label>
+                        <input type="file" name="uid_photo_back" class="form-control" accept="image/png, image/jpeg" 
+                        {% if employee.uid_photo_back.url %}
+                        readonly
+                        {% else %}
+                        required
+                        {% endif %}>
+                      </div> 
+                      <div class="form-group">
+                        <label for="self_photo">Your photo: 
+                          {% if employee.self_photo.url %}
+                          <div class="col-md-3">
+                            <img src="{{ employee.self_photo.url }}" alt="" class="img-main img-fluid mb-3" 
+                            height="200px" width="200px">
+                          </div>
+                          {% endif %} </label>
+                        <input type="file" name="self_photo" class="form-control" accept="image/png, image/jpeg" 
+                        {% if employee.self_photo.url %}
+                        readonly
+                        {% else %}
+                        required
+                        {% endif %}>
+                      </div> 
+                      <div class="form-group">
+                        <label for="condition_agreed">
+                          Please read and agree to our <a href="" data-toggle="modal" data-target="#tncModal" >
+                            terms and conditions <span class="required">*</span></a>
+                        </label><br>
+                        <input type="radio"  id="condition_agreed" required
+                        name="condition_agreed" value="True" 
+                        {% if employee.condition_agreed == True %}
+                        checked = "checked"
+                        {% endif %}>
+                        <label for="condition_agreed">I agree</label>
+                        <input type="radio"  id="condition_disagreed" required
+                        name="condition_agreed" value="False" 
+                        {% if employee.condition_agreed == False %}
+                        checked = "checked"
+                        {% endif %}>
+                        <label for="condition_disagreed">I disagree</label>
+                                        
+
+                    
+                    <input type="submit" value="Save and Update Profile" class="btn btn-secondary btn-block">
+                  
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <div class="modal fade" id="tncModal" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="tncModalLabel">Terms and Conditions</h5>
+          <button type="button" class="close" data-dismiss="modal">
+            <span>&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <!-- start of enquiry form -->
+          <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+             Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, 
+             when an unknown printer took a galley of type and scrambled it to make a type specimen book. 
+             It has survived not only five centuries, but also the leap into electronic typesetting,
+              remaining essentially unchanged. It was popularised in the 1960s with the release of
+               Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing 
+               software like Aldus PageMaker including versions of Lorem Ipsum.
+
+            Why do we use it?
+            It is a long established fact that a reader will be distracted by the readable 
+            content of a page when looking at its layout. The point of using Lorem Ipsum is
+             that it has a more-or-less normal distribution of letters, as opposed to using
+              'Content here, content here', making it look like readable English. Many desktop 
+              publishing packages and web page editors now use Lorem Ipsum as their default
+               model text, and a search for 'lorem ipsum' will uncover many web sites still 
+               in their infancy. Various versions have evolved over the years, sometimes by 
+               accident, sometimes on purpose (injected humour and the like).
+
+            </p>
+          </div>   
+        </div>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <!-- Profile button will not display .. do nothing -->
+  {% endif %}
+
+  
+
+{% endblock %}

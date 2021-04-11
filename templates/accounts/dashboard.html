@@ -1,2 +1,260 @@
-<h1>dash
-</h1>
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Alert -->
+{% include 'partials/_alerts.html' %}
+
+<section id="dashboard" class="py-4">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12">
+          <h2>Welcome {{ user.first_name}}</h2>
+
+          <!-- User is a employee -->
+              {% if is_employee == 'True' %}  
+                  
+                  {% if contacts_by_u %}
+
+                        <p>Here are the profiles that you have inquired about</p>
+                        <table class="table">
+                          <thead>
+                            <tr>
+                              <th scope="col">#</th>
+                              <th scope="col">Ad details</th>
+                              <th></th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {% for contact in contacts_by_u %}
+                              <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ contact.ad_id }}</td>
+                                <td>
+                                  <a class="btn btn-light" href="{% url 'employer' contact.ad_id.id  %}">View Ad</a>
+                                </td>
+                              </tr>
+                            {% endfor %}
+                          </tbody>
+                        </table>
+                    {% else %}
+                        <p>You have not shorlisted any job yet. </p>
+                    {% endif %}
+
+                    {% if contacts_for_u %}
+
+                        <p>Here are the profiles that have inquired about you</p>
+                        <table class="table">
+                          <thead>
+                            <tr>
+                              <th scope="col">#</th>
+                              <th scope="col">Ad details</th>
+                              <th></th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {% for contact in contacts_for_u %}
+                              <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ contact.employer_ad }}</td>
+                                <td>
+                                  <a class="btn btn-light" href="{% url 'employer' contact.employer_ad.id  %}">View Ad</a>
+                                </td>
+                                <td>
+                                  <a class="btn btn-light" href="{% url 'index'  %}">Match OTP</a>
+                                </td>
+                              </tr>
+                            {% endfor %}
+                          </tbody>
+                        </table>
+                    {% else %}
+                        <p>Your profile has not been shorlisted so far. </p>
+                    {% endif %}
+                         <!-- User is a employer -->
+              {% else %}
+                    {% if contacts_by_u %}
+
+                    <p>Here are the profiles that you have inquired about</p>
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th scope="col">#</th>
+                          <th scope="col">Employee id</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for contact in contacts_by_u %}
+                          <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ contact.employee_id }}</td>
+                            <td>
+                              <a class="btn btn-light" href="{% url 'employee' contact.employee_id %}">View Employee Profile</a>
+                            </td>
+                            <td>
+                              <a class="btn btn-light" href="{% url 'index'  %}">Match OTP</a>
+                            </td>
+                          </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                    {% else %}
+                    <p>You have not shorlisted any profile. </p>
+                    {% endif %}
+
+                    {% if contacts_for_u %}
+
+                    <p>Here are the profiles that have inquired about you</p>
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th scope="col">#</th>
+                          <th scope="col">Employee Id</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for contact in contacts_for_u %}
+                          <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ contact.employee_id }}</td>
+                            <td>
+                              <a class="btn btn-light" href="{% url 'employee' contact.employee_id %}">View Employee Profile</a>
+                            </td>
+                            <td>
+                              <a class="btn btn-light" href="{% url 'index'  %}">Match OTP</a>
+                            </td>
+                          </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                    {% else %}
+                    <p>Your ad has not been enquired so far. </p>
+                    {% endif %}
+
+                    <!-- <p>Your Ads:</p>  --> 
+
+                    {% if ads %}
+
+                    <p>Your Ads</p>
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th scope="col">#</th>
+                          <th scope="col">Requirement</th>
+                          <th scope="col">Number of Requirements</th>
+                          <th scope="col">Status</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for ad in ads %}
+                          <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ ad.requirement }}</td>
+                            <td>{{ ad.no_of_requirments }}</td>
+                            <td>{% if ad.is_published is True %}
+                              Active
+                              {% else %}
+                              Inactive
+                              {% endif %}
+                            </td>
+                            <td>
+                              <a class="btn btn-light" data-toggle="modal" data-target="#adModal" >View this Ad</a>
+                            </td>
+                            <td>
+                              <a class="btn btn-danger" href="{% url 'del_ad' ad.id %}" >Delete this Ad</a>
+                            </td>
+                          </tr>
+
+                          <!-- View Ad -->
+                          <div class="modal fade" id="adModal" role="dialog">
+                            <div class="modal-dialog">
+                              <div class="modal-content">
+                                <div class="modal-header">
+                                  <h5 class="modal-title" id="adModalLabel">Your Ad</h5>
+                                  <button type="button" class="close" data-dismiss="modal">
+                                    <span>&times;</span>
+                                  </button>
+                                </div>
+                                <div class="modal-body">
+                                  <!-- start of enquiry form -->
+                                  
+                                  <form action="{% url 'view_ad' ad.id %}" method="POST">
+                                    {% csrf_token %}
+                                    <div class="form-group">
+                                      <label for="firm" class="col-form-label">Firm:</label>
+                                      <input type="text" name="firm" class="form-control" 
+                                      value="{{ user.username }}" readonly>
+                                    </div>
+                                    <div class="form-group">
+                                      <label for="requirement" class="col-form-label">Requirement:</label>
+                                      <select name="requirement" class="form-control" required>
+                                        <option selected="true" value="{{ ad.requirement }}">
+                                                {{ ad.requirement }}</option>
+                                          {% for job in jobs %}
+                                            <option value="{{ job.job_name }}">{{ job.job_name }} in {{ job.job_category }}</option>
+                                          {% endfor %}
+                                      </select>
+                                    </div>
+                                    <div class="form-group">
+                                      <label for="no_of_requirments" class="col-form-label">Number of vacancies:</label>
+                                      <input type="number" name="no_of_requirments" class="form-control" 
+                                      value="{{ ad.no_of_requirments }}" min="0" required> 
+                                    </div>
+                                    <div class="form-group">
+                                      <label for="salary_offered" class="col-form-label">Salary offered (Rs):</label>
+                                      <input type="number" min="0" name="salary_offered" class="form-control" 
+                                      value="{{ ad.salary_offered }}" required>
+                                    </div>
+                                    <div class="form-group">
+                                      <label for="salary_frequency" class="col-form-label">Salary frequency:</label>
+                                      <select name="salary_frequency" class="form-control"required>
+                                        <option selected="true" value="{{ ad.salary_frequency }}">
+                                            {{ ad.salary_frequency }}</option>
+                                          {% for key,value in salary_choices %}
+                                            <option value="{{ value }}">{{ value }}</option>
+                                          {% endfor %}
+                                      </select>
+                                    </div>
+                                    <div class="form-group">
+                                      <label for="shift_offered" class="col-form-label">Expected Shift:</label>
+                                      <select name="shift_offered" class="form-control" required>
+                                        <option selected="true" value="{{ ad.shift_offered }}" >
+                                            {{ ad.shift_offered }}</option>
+                                          {% for key,value in shift_choices %}
+                                            <option value="{{ value }}">{{ value }}</option>
+                                          {% endfor %}
+                                      </select>
+                                    </div>
+                                    
+                                    <hr>
+                                    <input type="submit" value="Save" class="btn btn-block btn-secondary">
+                                  </form>
+                                    
+                                </div>
+                              </div>
+                            </div>
+                          </div> 
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                    {% else %}
+                    <p>You have not posted any ad so far. </p>
+                    {% endif %}
+
+                    <!-- POST and Ad-->
+                      <!-- Inquiry Modal 
+                      <a class="btn btn-dark" href="{% url 'index'  %}">Post an Ad</a> 
+                      <button class="btn-primary btn-block btn-lg" onclick="{% url 'post_ad' %}" data-toggle="modal" data-target="#adModal">Post an Ad</button> -->
+                      <a class="btn btn-dark" href="{% url 'post_ad' %}" >Post an Ad</a>
+                      
+                    
+              {% endif %}            <!-- end of is_employee check -->
+           
+
+
+        </div>
+      </div>
+    </div>
+  </section>
+  {% endblock %}

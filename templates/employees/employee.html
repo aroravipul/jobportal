@@ -14,7 +14,8 @@
       </div>
     </div>
   </section>
-
+  <!-- Alert -->
+{% include 'partials/_alerts.html' %}
   <!-- Breadcrumb -->
   <section id="bc" class="mt-3">
     <div class="container">
@@ -39,7 +40,10 @@
       <div class="row">
         <div class="col-md-9">
           <!-- Home Main Image -->
-          <img src="{{ employee.self_photo.url }}" alt="" class="img-main img-fluid mb-3">
+          <div class="col-md-3">
+          <img src="{{ employee.self_photo.url }}" alt="" class="img-main img-fluid mb-3" 
+          height="200px" width="200px">
+          </div>
           <!-- Thumbnails 
           <div class="row mb-5 thumbs">
             <div class="col-md-2">
@@ -74,24 +78,38 @@
             </div>
           </div> -->
           <!-- Fields -->
-          <div class="row mb-5 fields">
+          <div class="row mb-5 fields" style="text-transform: capitalize;">
             <div class="col-md-6">
               <ul class="list-group list-group-flush">
                 <li class="list-group-item text-secondary">
-                  <i class="fas fa-money-bill-alt"></i> Age:
+                  <i class="fas fa-th-large"></i> Aadhar Card Number:
+                  <span class="float-right">
+                    {% if user.is_authenticated and logged_user == 'employer'%}
+                    {{ employee.uid }}
+                    {% else %}
+                    XXXXXXXX{{ subuid }}  
+                    {% endif %}  
+                  </span>
+                </li>
+                <li class="list-group-item text-secondary">
+                  <i class="fas fa-th-large"></i> Age:
                   <span class="float-right">{{ employee.age}}</span>
                 </li>
                 <li class="list-group-item text-secondary">
-                  <i class="fas fa-bed"></i> Gender:
+                  <i class="fas fa-th-large"></i> Gender:
                   <span class="float-right">{{ employee.gender }}</span>
                 </li>
                 <li class="list-group-item text-secondary">
-                  <i class="fas fa-bath"></i> Expected Salary:
+                  <i class="fas fa-th-large"></i> Expected Salary:
                   <span class="float-right">{{ employee.exp_salary}} {{employee.exp_salary_frequency}}</span>
                 </li>
                 <li class="list-group-item text-secondary">
-                  <i class="fas fa-car"></i> Jobs applied:
-                  <span class="float-right">{{ employee.job_preference1 }}/ {{ employee.job_preference2 }}/ {{ employee.job_preference3 }}
+                  <i class="fas fa-th-large"></i> Jobs applied:
+                  <span class="float-right">{{ employee.job_preference1 }}
+                            {% if employee.job_preference2 %}/ {{ employee.job_preference2 }}
+                            {% endif %}
+                            {% if employee.job_preference3 %}/ {{ employee.job_preference3 }}
+                            {% endif %}
                   </span>
                 </li>
               </ul>
@@ -103,16 +121,27 @@
                   <span class="float-right"> {{employee.prev_work_exp}}</span>
                 </li>
                 <li class="list-group-item text-secondary">
-                  <i class="fas fa-square"></i> Preferred Shift:
+                  <i class="fas fa-th-large"></i> Preferred Shift:
                   <span class="float-right"> {{employee.pref_shift}}
                   </span>
                 </li>
                 <li class="list-group-item text-secondary">
-                  <i class="fas fa-calendar"></i> Qualifications:
+                  <i class="fas fa-th-large"></i> Qualifications:
                   <span class="float-right">{{ employee.qualification }}</span>
                 </li>
                 <li class="list-group-item text-secondary">
-                  <i class="fas fa-bed"></i> Applied on:
+                  <i class="fas fa-th-large"></i> Phone Number:
+                  <span class="float-right">
+                    {% if user.is_authenticated and logged_user == 'employer'%}
+                    {{ employee.phone }}
+                    {% else %}
+                    XXXXXX{{ subphone }}  
+                    {% endif %}  
+                   
+                  </span>
+                </li>
+                <li class="list-group-item text-secondary">
+                  <i class="fas fa-th-large"></i> Applied on:
                   <span class="float-right">{{ employee.create_date }}
                   </span>
                 </li>
@@ -141,7 +170,7 @@
               <h6 class="text-secondary">Kyle Brown</h6>
             </div>
           </div>-->
-          <button class="btn-primary btn-block btn-lg" data-toggle="modal" data-target="#inquiryModal">Show Interest</button>
+          <button class="btn-primary btn-block btn-lg" data-toggle="modal" data-target="#inquiryModal">Send Interest</button>
           
         </div>
       </div>
@@ -149,44 +178,112 @@
   </section>
 
   <!-- Inquiry Modal -->
+  {% if user.is_authenticated %}
+  {% if logged_user == 'employer' %}
   <div class="modal fade" id="inquiryModal" role="dialog">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="inquiryModalLabel">Make An Inquiry</h5>
+          <h5 class="modal-title" id="inquiryModalLabel">Send Interest</h5>
           <button type="button" class="close" data-dismiss="modal">
             <span>&times;</span>
           </button>
         </div>
         <div class="modal-body">
-          <form>
+          <!-- start of enquiry form -->
+          
+          <form action="{% url 'contact_employee' %}" method="POST">
+            {% csrf_token %}
             <div class="form-group">
-              <label for="property_name" class="col-form-label">Property:</label>
-              <input type="text" name="listing" class="form-control" value="45 Drivewood Cirlce" disabled>
+              <label for="ad" class="col-form-label">Vacancy for:</label>
+              <select name="ad" class="form-control">
+                
+                  {% for ad in ads %}
+                    <option value="{{ ad.id }}">{{ ad.requirement }}</option>
+                  {% endfor %}
+              </select>
             </div>
             <div class="form-group">
-              <label for="name" class="col-form-label">Name:</label>
-              <input type="text" name="name" class="form-control" required>
+              <label for="employee_id" class="col-form-label">Employee Id:</label>
+              <input type="text" name="employee_id" class="form-control" 
+              value="{{ employee.uid }}" >
             </div>
             <div class="form-group">
-              <label for="email" class="col-form-label">Email:</label>
-              <input type="email" name="email" class="form-control" required>
+              <label for="fullname" class="col-form-label">Employer Name:</label>
+              <input type="text" name="fullname" class="form-control" 
+              value="{{ user.first_name }} {{ user.last_name }}" >
             </div>
+            <div class="form-group">
+              <label for="firm_name" class="col-form-label">Firm Name:</label>
+              <input type="text" name="firm_name" class="form-control" 
+              value="{{ user.username }}" >
+            </div>
+            <!--
             <div class="form-group">
               <label for="phone" class="col-form-label">Phone:</label>
-              <input type="text" name="phone" class="form-control">
-            </div>
-            <div class="form-group">
-              <label for="message" class="col-form-label">Message:</label>
-              <textarea name="message" class="form-control"></textarea>
-            </div>
+              <input type="text" name="phone" class="form-control" 
+              value="{{employee.phone}}" placeholder="e.g. 9876543210" pattern="[6-9]{1}[0-9]{9}" >
+            </div>-->
+            
             <hr>
             <input type="submit" value="Send" class="btn btn-block btn-secondary">
           </form>
+            
         </div>
       </div>
     </div>
   </div>
+  {% else %}
 
+  {% endif %}
+          <!-- End of Enquiry form -->
+
+          {% else %}
+          <div class="modal fade" id="inquiryModal" role="dialog">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="inquiryModalLabel">Please register first</h5>
+                  <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+          <form action="{% url 'register_er' %}" enctype="multipart/form-data" method="POST">
+            <div id="employerreg" class="form-group" >
+               {% csrf_token %}
+               <div class="form-group">
+                <label for="first_name">First Name</label>
+                <input type="text" name="first_name" class="form-control" required>
+               </div>
+               <div class="form-group">
+                 <label for="last_name">Last Name</label>
+                 <input type="text" name="last_name" class="form-control" required>
+               </div>
+              <div class="form-group">
+                <label for="firmname">Firm name</label>
+                <input type="text" name="firmname" class="form-control" required>
+              </div>
+              <div class="form-group">
+                <label for="password2">Password</label>
+                <input type="password" name="password" class="form-control" required>
+              </div>
+              <div class="form-group">
+                <label for="password">Confirm Password</label>
+                <input type="password" name="password2" class="form-control" required>
+              </div>             
+               <!--   {{ employer_form.as_p }} -->
+              
+            <!-- end if -->
+            <input type="submit" value="Register" class="btn btn-secondary btn-block">
+
+            </div>
+        </form>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
 
 {% endblock %}

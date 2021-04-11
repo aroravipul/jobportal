@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load static %}
+{% block content %}
+
+<section id="showcase-inner" class="showcase-search text-white py-5">
+    <div class="container">
+      <div class="row text-center">
+        <div class="col-md-12">
+          <form action="{% url 'ersearch' %}">
+            <!-- Form Row 1 -->
+            <div class="form-row">
+              <div class="col-md-4 mb-3">
+                <label class="sr-only">Job Preference</label>
+                <input type="text" name="jobpref" class="form-control" value="{{values.jobpref}}" placeholder="Job preference (Helper, Manager, etc)">
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <label class="sr-only">City</label>
+                <input type="text" name="city" class="form-control" placeholder="City" value="{{values.city}}">
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <label class="sr-only">Salary</label>
+                <input type="text" name="Salary" class="form-control" placeholder="Salary" value="{{values.Salary}}">
+              </div>
+            </div>
+            <!-- Form Row 2 -->
+            <div class="form-row">
+                <div class="col-md-6 mb-3">
+                    <label class="sr-only">Shift</label>
+                    <select name="shift" class="form-control">
+                      <option selected="true" disabled="disabled">Shifts (All)</option>
+                        {% for key,value in shift_choices %}
+                          <option value="{{ key }}" 
+                          {% if key == values.shift %}
+                          selected
+                          {% endif %}
+                          >{{ value }}</option>
+                        {% endfor %}
+                    </select>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label class="sr-only">Previous Experience</label>
+                    <input type="text" name="prevexp" class="form-control" placeholder="Previous Experience" value="{{values.prevexp}}">
+                  </div>
+            </div>
+            <button class="btn btn-secondary btn-block mt-4" type="submit">Submit form</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Breadcrumb -->
+  <section id="bc" class="mt-3">
+    <div class="container">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item">
+            <a href="{% url 'index' %}">
+              <i class="fas fa-home"></i> Home</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a href="{% url 'employers' %}">Browse Employers</a>
+          </li>
+          <li class="breadcrumb-item active"> Search Results</li>
+        </ol>
+      </nav>
+    </div>
+  </section>
+
+  <!-- Listings -->
+  <section id="listings" class="py-4">
+    <div class="container">
+      <div class="row">
+
+        <!-- List the Employees in loop -->
+        {% if employers %}
+            {% for employer in employers %}
+                <!-- Listing 1 -->
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card listing-preview">
+                      <!--{% if employer.self_photo.url %}
+                      <img class="card-img-top" src="{{ employee.self_photo.url }}" alt="" height="220px" >
+                      {% endif %} -->
+                      <!--<div class="card-img-overlay">
+                        <h2>
+                          <span class="badge badge-secondary text-white">$490,000</span>
+                        </h2>
+                      </div>-->
+                      <div class="card-body">
+                        <div class="listing-heading text-center">
+                          <h4 class="text-primary">{{ employer.requirement.job_name }}</h4>
+                          <p>
+                            <i class="fas fa-map-marker text-secondary"></i> {{ employer.firm.city }}</p>
+                        </div>
+                        <hr>
+                        <div class="row py-2 text-secondary">
+                          <div class="col-12">
+                            <i class="fas fa-th-large"></i> Vacancy for: {{ employer.requirement }}</div>
+                          <div class="col-12">
+                            <i class="fas fa-th-large"></i> Category: {{ employer.requirement.job_category }}</div>
+                          
+                        
+                          <div class="col-12">
+                            <i class="fas fa-th-large"></i> Preferred shift : {{ employer.shift_offered }} </div>
+                          <div class="col-12">
+                            <i class="fas fa-th-large"></i> Salary offered (Rs): {{ employer.salary_offered}} 
+                            {{ employer.salary_frequency }}</div>
+                            <div class="col-12">
+                            <i class="fas fa-th-large"></i> Ad posted on : {{ employer.create_date }} </div>
+                          
+                        </div>
+                        <!--<hr>
+                        <div class="row py-2 text-secondary">
+                          <div class="col-12">
+                            <i class="fas fa-user"></i> {{ employee.volunteer }}</div>
+                        </div>
+                        <div class="row text-secondary pb-2">
+                          <div class="col-12">
+                            <i class="fas fa-clock"></i> </div>
+                        </div>-->
+                        <hr>
+                        <a href="{% url 'employer' employer.id %}" class="btn btn-primary btn-block">More Info</a>
+                      </div>
+                    </div>
+                  </div>
+            {% endfor %}
+        {% else %}
+          <div class="col--md-12">
+            <p>No Employers Available</p>
+          </div>
+        {% endif %}
+
+      </div>
+    </div>
+  </section>
+
+
+{% endblock %}

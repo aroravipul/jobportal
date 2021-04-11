@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'employers.apps.EmployersConfig',
     'volunteers.apps.VolunteersConfig',
     'accounts.apps.AccountsConfig',
+    'contacts.apps.ContactsConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -145,3 +146,5 @@ from django.contrib.messages import constants as messages
 MESSAGE_TAGS = {
     messages.ERROR : 'danger'
 }
+
+#AUTH_USER_MODEL = 'accounts.User'

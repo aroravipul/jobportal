@@ -13,22 +13,70 @@
             <div class="card-body">
                 <!--Alerts-->
                 {% include 'partials/_alerts.html' %}
+
+                 <!-- Check if Employee or Employer -->
+                 <script type="text/javascript">
+
+                  function yesnoCheck() 
+                      {
+                      if (document.getElementById('employee').checked) 
+                      {
+                          document.getElementById('employeelog').style.display = 'block';
+                          document.getElementById('employerlog').style.display = 'none';
+                      } 
+                      else if (document.getElementById('employer').checked) 
+                      {
+                          document.getElementById('employerlog').style.display = 'block';
+                          document.getElementById('employeelog').style.display = 'none';
+                      }
+                  }
+                  
+              </script>
+              <input type="radio" onclick="javascript:yesnoCheck();" id="employee" name="profile" value="employee">
+              <label for="employee">Employee</label>
+              <input type="radio" onclick="javascript:yesnoCheck();" id="employer" name="profile" value="employer">
+              <label for="employer">Employer</label><br>
+
+              
+
+              
+              
               <form action="{% url 'login' %}" method="POST">
 
                 
                   {% csrf_token %}
-                <div class="form-group">
-                  <label for="uid">Aadhar card number</label>
-                  <input type="text" name="uid" class="form-control" required>
+                  <!-- if Employee -->
+                <div class="form-group" id="employeelog" style="display:none">
+                  <label for="username">Aadhar card number</label>
+                  <input type="text" name="username" class="form-control" required>
+
+                  <label for="password2">Password</label>
+                  <input type="password" name="password" class="form-control" required><br>
+
+                  <input type="submit" value="Login" class="btn btn-secondary btn-block">
                 </div>
 
-                <div class="form-group">
-                  <label for="password2">Password</label>
-                  <input type="password" name="password" class="form-control" required>
-                </div>
-               
-                <input type="submit" value="Login" class="btn btn-secondary btn-block">
               </form>
+                  <!-- if Employer -->
+
+                  <form action="{% url 'login' %}" method="POST">
+
+                
+                    {% csrf_token %}
+                <div class="form-group" id="employerlog" style="display:none">
+                  <label for="username">Firm name</label>
+                  <input type="text" name="username" class="form-control" required>
+
+                  <label for="password2">Password</label>
+                  <input type="password" name="password" class="form-control" required><br>
+
+                  <input type="submit" value="Login" class="btn btn-secondary btn-block">
+                </div>
+
+                
+                  </form>
+                
+              
             </div>
           </div>
         </div>

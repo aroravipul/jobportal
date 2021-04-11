@@ -1,7 +1,12 @@
-
 {% extends 'base.html' %}
 {% load static %}
+{% block title %} | Welcome
+
+{% endblock %}
 {% block content %}
+<!-- Alert -->
+{% include 'partials/_alerts.html' %}
+
 <!-- Showcase -->
 <section id="showcase">
     <div class="container text-center">
@@ -70,7 +75,7 @@
 
         <div class="col-md-4">
           <img src="{% static '/img/default.png' %}" alt="" class="rounded-circle mb-3">
-          <h4>Ajay</h4>
+          <h4>AJ</h4>
           <p class="text-success">Abcde</p>
           <hr>
           <p>

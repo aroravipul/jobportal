@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<section id="subscribe" class="bg-light py-5">
+    <div class="container text-center">
+      <div class="home-search p-1">
+        <div class="overlay p-1">
+         
+     
+ 
+<div class="snip1214">
+    
+        {% if plans %}
+        {% for plan in plans %}
+        <div class="plan 
+        {% if forloop.counter == 2 %}
+        featured
+        {% else %}
+        {% endif %}"
+        >
+      <h3 class="plan-title">
+        {{ plan.package_name }}
+      </h3>
+      <div class="plan-cost"><span class="plan-price">Rs. {{ plan.price }}</span>
+        <span class="plan-type">/ {{ plan.validity }}</span></div>
+      <ul class="plan-features">
+        <li><i class="ion-checkmark"> </i>{{ plan.feature1 }}</li>
+        <li><i class="ion-checkmark"> </i>{{ plan.feature2 }}</li>
+        <li><i class="ion-checkmark"> </i>{{ plan.feature3 }}</li>
+        <li><i class="ion-checkmark"> </i>{{ plan.feature4 }}</li>
+        <li><i class="ion-checkmark"> </i>{{ plan.feature5 }}</li>
+        <li><i class="ion-checkmark"> </i>{{ plan.feature6 }}</li>
+      </ul>
+      <div class="plan-select"><a href="">Select Plan and Pay</a></div>
+    </div>
+      {% endfor %}
+      {% endif %}
+    
+    
+  <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+        
+        </div>
+    </div>
+</section>
+
+{% endblock %}
