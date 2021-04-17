@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User_category, Subscription_employee, Subscription_employer
+from .models import User_category, Subscription_employee, Subscription_employer, PhoneOTP
 
 class User_categoryAdmin(admin.ModelAdmin):
     list_display = ('username',)
@@ -14,3 +14,4 @@ class Subscription_employerAdmin(admin.ModelAdmin):
 admin.site.register(User_category, User_categoryAdmin)
 admin.site.register(Subscription_employee, Subscription_employeeAdmin)
 admin.site.register(Subscription_employer, Subscription_employerAdmin)
+admin.site.register(PhoneOTP)

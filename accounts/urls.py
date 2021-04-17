@@ -1,5 +1,7 @@
-from django.urls import path
+from django.urls import path, include #, re_path
 from . import views
+#from .views import *
+#app_name = 'accounts'
 
 urlpatterns = [
     path('login', views.login, name='login'),
@@ -11,5 +13,10 @@ urlpatterns = [
     path('profile_ee', views.profile_ee, name='profile_ee'),
     path('profile_er', views.profile_er, name='profile_er'),
     path('dashboard', views.dashboard, name='dashboard'),
-    path('subscription', views.subscription, name='subscription')
+    path('generate_otp/<int:id>', views.generate_otp, name='generate_otp'),
+    path('match_otp/<int:id>/<int:ad_id>', views.match_otp, name='match_otp'),
+    path('subscription', views.subscription, name='subscription'),
+    path('validate_phone', views.ValidatePhoneSendOTP, name='validate_phone'),
+    path('validate_otp', views.ValidateOTP, name='validate_otp')
+    #re_path('^validate_phone/', ValidatePhoneSendOTP.as_view(), name='validatephone'),
 ]

@@ -1,6 +1,7 @@
 #header {
-     height: 50px;
-     background: #663100;
+     height: 80px;
+     /*background: #663100;*/
+     background: #10284e;
      color: #fff;
 }
 
@@ -14,7 +15,8 @@ a:visited {
 }
 
 div.breadcrumbs {
-    background: #f1ab6a;
+    /*background: #f1ab6a;*/
+    background: #2c90e2;
     color: #000000;
 }
 
@@ -23,15 +25,18 @@ div.breadcrumbs a{
 }
 
 .module h2, .module caption, .inline-group h2 {
-    background: #f1ab6a;
+    /*background: #f1ab6a;*/
+    background: #2c90e2;
 }
 
 .button, input[type=submit], input[type=button], .submit-row input, a.button {
-    background: #663100;
+    /*background: #663100;*/
+    background: #10284e;
      color: #fff;
 }
 
 .button.default, input[type=submit].default, .submit-row input.default {
-    background: #f1ab6a;
+    /*background: #f1ab6a;*/
+    background: #2c90e2;
     color: #fff;
 }

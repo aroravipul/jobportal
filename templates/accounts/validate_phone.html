@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Alert -->
+{% include 'partials/_alerts.html' %}
+
+
+<section id="register" class="bg-light py-5">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6 mx-auto">
+          <div class="card">
+            <div class="card-header bg-primary text-white">
+              <h4>
+                <i class="fas fa-user-plus"></i>Verify Phone Number</h4>
+            </div>
+            <div class="card-body">
+                
+                
+        
+            <form action="{% url 'validate_phone' %}" method="POST">
+                <div id="employeereg" >
+                
+                 {% csrf_token %}
+                                  
+                  <!--     {{ employee_form.as_p|title }} -->
+                  
+                  <div class="form-group">
+                    <label for="username"></label>
+                    <input type="hidden" name="username" class="form-control" 
+                    value="{{ current_user }}" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="phone">Phone number</label>
+                    <input type="tel" name="phone" class="form-control" value="{{ phone }}" 
+                    required readonly>
+                  </div>
+                          
+                
+                <input type="submit" value="Generate OTP" class="btn btn-secondary btn-block">
+                </div>
+            </form>
+            <form action="{% url 'validate_otp' %}" method="POST">
+                <div id="otp" >
+                
+                 {% csrf_token %}
+                                  
+                  <!--     {{ employee_form.as_p|title }} -->
+                  
+                  <div class="form-group">
+                    <label for="username"></label>
+                    <input type="hidden" name="username" class="form-control" 
+                    value="{{ current_user }}" required>
+                  </div>
+                  <div class="form-group">
+                    <input type="hidden" name="phone" class="form-control" value="{{ phone }}" >
+                    
+                  </div>
+                  <div class="form-group">
+                    <label for="otp_sent">Enter OTP:</label>
+                    <input type="text" name="otp_sent" class="form-control" 
+                     required>
+                  </div>
+                          
+                
+                <input type="submit" value="Submit OTP" class="btn btn-secondary btn-block">
+                </div>
+            </form>
+                
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+{% endblock %}

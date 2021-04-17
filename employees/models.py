@@ -38,6 +38,7 @@ class Employee(models.Model):
                         ('Grad and above','Graduation and above') ]
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES)
     phone = models.CharField(max_length=12)
+    phone_verified = models.BooleanField(default=False)
     city = models.CharField(max_length=50)   # not from city table
     job_preference1 = models.ForeignKey(Job, on_delete=models.DO_NOTHING, related_name = 'jp1')  # from jobs table
     job_preference2 = models.ForeignKey(Job, on_delete=models.DO_NOTHING, blank=True, null=True, related_name = 'jp2')  # from jobs table

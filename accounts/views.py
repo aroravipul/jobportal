@@ -1,11 +1,14 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseRedirect
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import permissions, status, generics
 from django.contrib import messages, auth
 from employees.models import Employee
 from employees.forms import EmployeeForm
 from employers.models import Employer, Job, Ad
 from volunteers.models import Volunteer
-from .models import User_category, Subscription_employee, Subscription_employer
+from .models import User_category, Subscription_employee, Subscription_employer, PhoneOTP
 from employers.forms import EmployerForm
 from django.contrib.auth.models import User
 from contacts.models import Employee_to_employer, Employer_to_employee
@@ -13,9 +16,14 @@ import os
 os.environ.setdefault('DJANGO_SETTINGS_MODULE','jobportal.settings')
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
-
+import random
 import django
+import json
+import ast
+import http.client
 django.setup()
+conn = http.client.HTTPConnection("2factor.in")
+
 
 def register_ee(request):
 
@@ -158,10 +166,13 @@ def dashboard(request):
         print(is_employee)
         contacts_for_u = Employer_to_employee.objects.order_by('-contact_date').filter(employee_id=request.user.username)
         contacts_by_u = Employee_to_employer.objects.order_by('-contact_date').filter(employee_id=request.user.username)
+        employee_otp = Employee.objects.get(uid=request.user.username)
+        print(employee_otp.match_otp)
         context = {
             'is_employee': is_employee,
             'contacts_for_u': contacts_for_u,
-            'contacts_by_u': contacts_by_u
+            'contacts_by_u': contacts_by_u,
+            'employee_otp' : employee_otp            
         }
     else:
         is_employee = "False"
@@ -404,8 +415,13 @@ def profile_ee(request):
                 condition_agreed= condition_agreed)
                 new_employee.save()
 
+                context = {
+                'current_user' : current_user,
+                'phone' : phone
+                }
+
                 messages.success(request, 'Your profile is updated successfully')
-                return HttpResponseRedirect('subscription')
+                return render( request, 'accounts/validate_phone.html', context)
         else:
             volunteer_list = Volunteer.objects.all()
             job_list = Job.objects.all()
@@ -623,8 +639,13 @@ def profile_er(request):
             full_name=fullname, address=address, city=city, phone=phone, condition_agreed=condition_agreed)
             new_employer.save()
 
+            context = {
+                'current_user' : current_user,
+                'phone' : phone
+            }
+
             messages.success(request, 'Your profile is updated successfully')
-            return HttpResponseRedirect('subscription')
+            return render( request, 'accounts/validate_phone.html', context)
     else:
         #if request.user.username in Employer.objects.values('firm_name', flat=True):
         
@@ -668,4 +689,270 @@ def subscription(request):
         
         return render(request, 'accounts/subscription.html', context)
 
+def generate_otp(request, id):
+    if request.user.username.isdigit():
+        # employee it is. generate otp and save in the profile
+        otp = random.randint(100000,999999)
+        otp_ee = Employee.objects.get(uid=id)
+        otp_ee.match_otp=otp
+        otp_ee.save()
+        messages.success(request, 'OTP generated successfully')
+        return redirect('dashboard')
 
+    else:
+        # employer it is. take input and complete employee hiring
+        messages.success(request, 'OTP cannot be generated')
+        return HttpResponseRedirect('dashboard')
+
+def match_otp(request, id, ad_id):
+    if request.user.username.isdigit():
+        messages.success(request, 'OTP cannot be generated')
+        return HttpResponseRedirect('dashboard')
+    
+    else:
+        otp = request.POST.get('otp')
+        otp_ee = Employee.objects.get(uid=id, match_otp=otp)
+        ad = Ad.objects.get(id=ad_id)
+        if otp_ee:
+            otp_ee.is_published = False
+            otp_ee.rojiroti_job_num = otp_ee.rojiroti_job_num+1
+            otp_ee.save()
+            print(ad.no_of_requirments)
+            ad.no_of_requirments = ad.no_of_requirments-1
+            if ad.no_of_requirments==0:
+                ad.is_published = False
+            ad.save()
+            print(ad.no_of_requirments)
+            messages.success(request, "OTP matched. Congratulations, you have hired an employee")
+            return redirect('dashboard')
+
+        else:
+            messages.error(request, "incorrect OTP. Please try again.")
+            return redirect('dashboard')
+
+#class ValidatePhoneSendOTP(APIView):
+
+def ValidatePhoneSendOTP(request, *args, **kwargs):
+    current_user = request.user.username
+    if current_user.isdigit():
+        user_data = Employee.objects.filter(uid=current_user)
+        phone = user_data.first().phone
+    else:
+        user_data = Employer.objects.filter(firm_name=current_user)
+        phone = user_data.first().phone
+    context={
+        'current_user': current_user,
+        'phone' : phone
+    }  
+    if request.method == 'POST':
+        phone_number = request.POST.get('phone')
+        #password = request.POST.get('password', False)
+        username = request.POST.get('username', False)
+        #email    = request.POST.get('email', False)
+
+        if phone_number:
+            phone = str(phone_number)
+            user = Employer.objects.filter(phone__iexact = phone)
+            print(user)
+            if user:
+
+                if user.first().phone_verified == True:
+                    messages.error(request, 'Phone number already verified' )
+                    return render(request, 'pages/index.html')
+                    #return Response({
+                    #    'status' : False,
+                    #    'detail' : 'Phone number already verified'
+                    #})
+
+                else:
+                    key = send_otp(phone)
+                    if key:
+                        old = PhoneOTP.objects.filter(phone__iexact = phone)
+                        if old.exists():
+                            old = old.first()
+                            count = old.count
+                            if count > 10:
+                                messages.error(request, 'Sending otp error. Limit Exceeded. Please Contact Customer support' )
+                                return render(request, 'accounts/validate_phone.html', context) 
+                                #return Response({
+                                #    'status' : False,
+                                #    'detail' : 'Sending otp error. Limit Exceeded. Please Contact Customer support'
+                                #})
+
+                            old.count = count +1
+                            old.save()
+                            print('Count Increase', count)
+
+                            conn.request("GET", "https://2factor.in/API/R1/?module=SMS_OTP&apikey=988e9a6f-9c72-11eb-80ea-0200cd936042&to="+phone+"&otpvalue="+str(key)+"&templatename=WomenMark1")
+                            res = conn.getresponse() 
+                            
+                            data = res.read()
+                            data=data.decode("utf-8")
+                            data=ast.literal_eval(data)
+                            print(data)
+                            
+                            if data["Status"] == 'Success':
+                                old.otp_session_id = data["Details"]
+                                old.otp = key
+                                old.save()
+                                print('In validate phone :'+old.otp_session_id)
+                                messages.success(request, 'OTP sent successfully' )
+
+                                
+                                return render(request, 'accounts/validate_phone.html', context) 
+                                #return render(request, 'accounts/validate_phone.html')
+                                #return Response({
+                                #        'status' : True,
+                                #        'detail' : 'OTP sent successfully'
+                                #    })    
+                            else:
+                                messages.error(request, 'OTP sending Failed' )
+                                return render(request, 'accounts/validate_phone.html', context) 
+                                #return Response({
+                                #        'status' : False,
+                                #        'detail' : 'OTP sending Failed'
+                                #    }) 
+
+                            
+
+
+                        else:
+
+                            obj=PhoneOTP.objects.create(
+                                phone=phone,
+                                otp = key,
+                                #email=email,
+                                username=username,
+                                #password=password,
+                            )
+                            conn.request("GET", "https://2factor.in/API/R1/?module=SMS_OTP&apikey=988e9a6f-9c72-11eb-80ea-0200cd936042&to="+phone+"&otpvalue="+str(key)+"&templatename=WomenMark1")
+                            res = conn.getresponse()    
+                            data = res.read()
+                            print(data.decode("utf-8"))
+                            data=data.decode("utf-8")
+                            data=ast.literal_eval(data)
+
+                            if data["Status"] == 'Success':
+                                obj.otp_session_id = data["Details"]
+                                obj.save()
+                                print('In validate phone :'+obj.otp_session_id)
+                                messages.success(request, 'OTP sent successfully' )
+                                return render(request, 'accounts/validate_phone.html', context) 
+                                #return Response({
+                                #        'status' : True,
+                                #        'detail' : 'OTP sent successfully'
+                                #    })    
+                            else:
+                                messages.error(request, 'OTP sending Failed' )
+                                return render(request, 'accounts/validate_phone.html', context) 
+                                #return Response({
+                                #        'status' : False,
+                                #        'detail' : 'OTP sending Failed'
+                                #    })
+
+                            
+                    else:
+                        messages.error(request, 'Sending OTP error' )
+                        return render(request, 'accounts/validate_phone.html', context) 
+                        #    return Response({
+                        #        'status' : False,
+                        #        'detail' : 'Sending otp error'
+                        #    })   
+
+        else:
+            messages.error(request, 'Phone number is not given in post request' )
+            return render(request, 'pages/index.html')
+            #return Response({
+            #    'status' : False,
+            #    'detail' : 'Phone number is not given in post request'
+            #}) 
+    else:
+        current_user = request.user.username
+        if current_user.isdigit():
+            user_data = Employee.objects.filter(uid=current_user)
+            phone = user_data.first().phone
+        else:
+            user_data = Employer.objects.filter(firm_name=current_user)
+            phone = user_data.first().phone
+        context={
+            'current_user': current_user,
+            'phone' : phone
+        }  
+        return render(request, 'accounts/validate_phone.html', context)         
+
+
+
+def send_otp(phone):
+    if phone:
+        key = random.randint(999,9999)
+        print(key)
+        return key
+    else:
+        return False
+
+
+
+def ValidateOTP(request, *args, **kwargs):
+    current_user = request.user.username
+    if current_user.isdigit():
+        user_data = Employee.objects.filter(uid=current_user)
+        
+    else:
+        user_data = Employer.objects.filter(firm_name=current_user)
+            
+    if request.method == 'POST':
+        phone = request.POST.get('phone', False)
+        otp_sent = request.POST.get('otp_sent', False)
+        if phone and otp_sent:
+            old = PhoneOTP.objects.filter(phone__iexact = phone)
+            if old.exists():
+                old = old.first()
+                otp_session_id = old.otp_session_id
+                print("In validate otp"+otp_session_id)
+                conn.request("GET", "https://2factor.in/API/V1/988e9a6f-9c72-11eb-80ea-0200cd936042/SMS/VERIFY/"+otp_session_id+"/"+otp_sent)
+                res = conn.getresponse()    
+                data = res.read()
+                print(data.decode("utf-8"))
+                data=data.decode("utf-8")
+                data=ast.literal_eval(data)
+                
+                
+
+                if data["Status"] == 'Success':
+                    old.validated = True
+                    user_data.first().phone_verified = True
+                    old.save()
+                    user_data.first().save()
+                    messages.success(request, 'OTP MATCHED. Please proceed for registration.')
+                    return redirect('subscription')
+                    #return Response({
+                    #    'status' : True,
+                    #    'detail' : 'OTP MATCHED. Please proceed for registration.'
+                    #        })
+
+                else:
+                    messages.error(request, 'OTP INCORRECT')
+                    return redirect('validate_phone')
+                    #return Response({
+                    #    'status' : False,
+                    #    'detail' : 'OTP INCORRECT'
+                    #})
+                
+
+
+            else:
+                messages.error(request, 'First Proceed via sending otp request')
+                return redirect('validate_phone')
+                #return Response({
+                #       'status' : False,
+                #        'detail' : 'First Proceed via sending otp request'
+                #    })
+
+
+        else:
+            messages.error(request, 'Please provide both phone and otp for Validation')
+            return redirect('validate_phone')
+            #return Response({
+            #            'status' : False,
+            #            'detail' : 'Please provide both phone and otp for Validation'
+            #        })

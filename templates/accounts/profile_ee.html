@@ -93,6 +93,11 @@
                         <input type="tel" name="phone" class="form-control" 
                         placeholder="e.g. 9876543210" pattern="[6-9]{1}[0-9]{9}" 
                         value="{{ employee.phone }}" required>
+                        {% if employee.phone %}
+                        {% if employee.phone_verified == False %}
+                          <a href="{% url 'validate_phone'%}"><u> Verify Phone Number </u></a>
+                        {% endif %}
+                        {% endif %}
                       </div> 
                       <div class="form-group">
                         <label for="city">City: </label>

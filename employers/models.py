@@ -17,6 +17,7 @@ class Employer(models.Model):
     address = models.CharField(max_length=100)
     city = models.CharField(max_length=100)
     phone = models.CharField(max_length=100)
+    phone_verified = models.BooleanField(default=False)
     '''
     requirement = models.ForeignKey(Job, on_delete=models.DO_NOTHING)
     no_of_requirments = models.PositiveIntegerField(default=1)

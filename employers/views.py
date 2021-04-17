@@ -60,14 +60,18 @@ def employer(request, id):
         print(contacts_by_user_count)
         print(contacts_by_user)
         logged_user = "employee"
-    else:
-        logged_user = "employer"
-    context = {
+        context = {
         'employer' : employer,
         'logged_user' : logged_user,
         'contacts_by_user': contacts_by_user,
         'contacts_by_user_count': contacts_by_user_count
     }
+    else:
+        logged_user = "employer"
+        context = {
+            'employer' : employer,
+            'logged_user' : logged_user
+        }
     return render(request, 'employers/employer.html', context)
 
 def search(request):
