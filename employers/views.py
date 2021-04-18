@@ -17,6 +17,7 @@ def index(request):
         logged_user = "employee"
     else:
         logged_user = "employer"
+    
 
     context = {
         'employers': paged_employers,

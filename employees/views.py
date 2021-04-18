@@ -7,7 +7,7 @@ from employers.models import Employer, Ad
 
 
 def index(request):
-    employees = Employee.objects.order_by('-create_date').filter(is_published=True).filter(is_approved=True)
+    employees = Employee.objects.order_by('-create_date').filter(is_published=True).filter(is_approved=True).filter(phone_verified=True)
     
     paginator = Paginator(employees, 3)
     page = request.GET.get('page')
