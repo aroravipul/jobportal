@@ -148,3 +148,8 @@ MESSAGE_TAGS = {
 }
 
 #AUTH_USER_MODEL = 'accounts.User'
+
+try:
+    from .local_settings import *
+except ImportError:
+    pass
