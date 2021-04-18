@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseRedirect
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import permissions, status, generics
+#from rest_framework.views import APIView
+#from rest_framework.response import Response
+#from rest_framework import permissions, status, generics
 from django.contrib import messages, auth
 from employees.models import Employee
 from employees.forms import EmployeeForm
