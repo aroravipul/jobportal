@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseRedirect
+from django.views.decorators.csrf import csrf_exempt
 #from rest_framework.views import APIView
 #from rest_framework.response import Response
 #from rest_framework import permissions, status, generics
@@ -8,11 +9,12 @@ from employees.models import Employee
 from employees.forms import EmployeeForm
 from employers.models import Employer, Job, Ad
 from volunteers.models import Volunteer
-from .models import User_category, Subscription_employee, Subscription_employer, PhoneOTP
+from .models import User_category, Subscription_employee, Subscription_employer, PhoneOTP, Order
 from employers.forms import EmployerForm
 from django.contrib.auth.models import User
 from contacts.models import Employee_to_employer, Employer_to_employee
 import os
+from PayTm import checksum
 os.environ.setdefault('DJANGO_SETTINGS_MODULE','jobportal.settings')
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
@@ -23,7 +25,7 @@ import ast
 import http.client
 django.setup()
 conn = http.client.HTTPConnection("2factor.in")
-
+MERCHANT_KEY = '42@@VfTiqp0G&uk2'
 
 def register_ee(request):
 
@@ -140,7 +142,7 @@ def login(request):
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
-
+        print(password)
         user = auth.authenticate(username=username, password=password)
 
         if user is not None:
@@ -161,47 +163,52 @@ def logout(request):
         return redirect('index')
 
 def dashboard(request):
-    if request.user.username.isdigit():
-        is_employee = "True"
-        print(is_employee)
-        contacts_for_u = Employer_to_employee.objects.order_by('-contact_date').filter(employee_id=request.user.username)
-        contacts_by_u = Employee_to_employer.objects.order_by('-contact_date').filter(employee_id=request.user.username)
-        employee_otp = Employee.objects.get(uid=request.user.username)
-        print(employee_otp.match_otp)
-        context = {
-            'is_employee': is_employee,
-            'contacts_for_u': contacts_for_u,
-            'contacts_by_u': contacts_by_u,
-            'employee_otp' : employee_otp            
-        }
+    # if POST
+    if request.method == 'POST':
+        return redirect('dashboard')
+    # if GET
     else:
-        is_employee = "False"
-        print(is_employee)
-        employer_id = Employer.objects.values_list('id', flat=True).filter(firm_name=request.user.username)
-        ads_by_user = Ad.objects.values_list('id', flat=True).filter(firm=employer_id.first())
-        print(ads_by_user)
-        contacts_by_u = Employer_to_employee.objects.order_by('-contact_date').filter(firm_name=request.user.username)
-        print(contacts_by_u)
-        contacts_for_u = []
-        for ad in ads_by_user:
-            print(ad)
-            contacts_for_u = Employee_to_employer.objects.order_by('-contact_date').filter(ad_id=ad)
-            #if contact_for_u:
-            #    contacts_for_u.append(contact_for_u)        
-        print(contacts_for_u)
-        #print(employer_id.first())
-        ads = Ad.objects.all().filter(firm_id = employer_id.first())
-        print(ads)
-        #ads = Ad.objects.get(id=1)
-        #ads = contacts_for_u
-        
-        context = {
-            'is_employee': is_employee,
-            'contacts_for_u': contacts_for_u,
-            'contacts_by_u': contacts_by_u,
-            'ads': ads
-        }
-    return render(request, 'accounts/dashboard.html', context)
+        if request.user.username.isdigit():
+            is_employee = "True"
+            print(is_employee)
+            contacts_for_u = Employer_to_employee.objects.order_by('-contact_date').filter(employee_id=request.user.username)
+            contacts_by_u = Employee_to_employer.objects.order_by('-contact_date').filter(employee_id=request.user.username)
+            employee_otp = Employee.objects.get(uid=request.user.username)
+            print(employee_otp.match_otp)
+            context = {
+                'is_employee': is_employee,
+                'contacts_for_u': contacts_for_u,
+                'contacts_by_u': contacts_by_u,
+                'employee_otp' : employee_otp            
+            }
+        else:
+            is_employee = "False"
+            print(is_employee)
+            employer_id = Employer.objects.values_list('id', flat=True).filter(firm_name=request.user.username)
+            ads_by_user = Ad.objects.values_list('id', flat=True).filter(firm=employer_id.first())
+            print(ads_by_user)
+            contacts_by_u = Employer_to_employee.objects.order_by('-contact_date').filter(firm_name=request.user.username)
+            print(contacts_by_u)
+            contacts_for_u = []
+            for ad in ads_by_user:
+                print(ad)
+                contacts_for_u = Employee_to_employer.objects.order_by('-contact_date').filter(ad_id=ad)
+                #if contact_for_u:
+                #    contacts_for_u.append(contact_for_u)        
+            print(contacts_for_u)
+            #print(employer_id.first())
+            ads = Ad.objects.all().filter(firm_id = employer_id.first())
+            print(ads)
+            #ads = Ad.objects.get(id=1)
+            #ads = contacts_for_u
+            
+            context = {
+                'is_employee': is_employee,
+                'contacts_for_u': contacts_for_u,
+                'contacts_by_u': contacts_by_u,
+                'ads': ads
+            }
+        return render(request, 'accounts/dashboard.html', context)
 
 def profile(request, name):
     if name.isdigit():
@@ -667,27 +674,70 @@ def profile_er(request):
     #return redirect('dashboard')
 
 def subscription(request):
-    #if employee
-    current_user = request.user.username
-    if current_user.isdigit():
-        print("Employee")
-        plans = Subscription_employee.objects.filter(is_active=True)
-        
-        context = {
-            'plans': plans
+    # if POST
+    if request.method == 'POST':
+        user_id = request.user.id
+        user_name = request.user.username
+        plan = request.POST.get('plan', False)
+        amount = request.POST.get('amount', False)
+        print(user_name)
+        #print(plan_chosen)
+        print(user_id)
+        new_order = Order(user= user_id, price= amount)
+        new_order.save()
+        current_user_order = Order.objects.filter(user=user_id).filter(is_successful=False)
+        current_order = current_user_order.last()
+        # update subscription plan selected
+        # if employee
+        if user_name.isdigit():
+            selected_plan = Subscription_employee.objects.filter(package_name=plan)
+            current_user = Employee.objects.get(uid=user_name)
+            current_user.subscription_plan = selected_plan.first()
+            current_user.save()
+        # if employer
+        else:
+            selected_plan = Subscription_employer.objects.filter(package_name=plan)
+            current_user = Employer.objects.get(firm_name =user_name)
+            current_user.subscription_plan = selected_plan.first()
+            current_user.save()
+        #return redirect('index')
+        #create param dict for paytm
+        param_dict = {
+            'MID': 'dfZPvc67896370649361',
+            'ORDER_ID': str(current_order.id),
+            'TXN_AMOUNT': str(amount),
+            'CUST_ID': str(user_id),
+            'INDUSTRY_TYPE_ID': 'Retail',
+            'WEBSITE': 'WEBSTAGING',
+            'CHANNEL_ID': 'WEB',
+            'CALLBACK_URL':'http://127.0.0.1:8000/accounts/handlerequest',
+
         }
-        
-        return render(request, 'accounts/subscription.html', context)
-    #if employer
+        param_dict['CHECKSUMHASH'] = checksum.generate_checksum(param_dict, MERCHANT_KEY)
+        return render(request, 'accounts/paytm.html', {'param_dict': param_dict})
+    # if GET
     else:
-        print("Employer")
-        plans = Subscription_employer.objects.filter(is_active=True)
-        
-        context = {
-            'plans': plans
-        }
-        
-        return render(request, 'accounts/subscription.html', context)
+    #if employee
+        current_user = request.user.username
+        if current_user.isdigit():
+            print("Employee")
+            plans = Subscription_employee.objects.filter(is_active=True)
+            
+            context = {
+                'plans': plans
+            }
+            
+            return render(request, 'accounts/subscription.html', context)
+        #if employer
+        else:
+            print("Employer")
+            plans = Subscription_employer.objects.filter(is_active=True)
+            
+            context = {
+                'plans': plans
+            }
+            
+            return render(request, 'accounts/subscription.html', context)
 
 def generate_otp(request, id):
     if request.user.username.isdigit():
@@ -895,10 +945,10 @@ def send_otp(phone):
 def ValidateOTP(request, *args, **kwargs):
     current_user = request.user.username
     if current_user.isdigit():
-        user_data = Employee.objects.filter(uid=current_user)
+        user_data = Employee.objects.get(uid=current_user)
         
     else:
-        user_data = Employer.objects.filter(firm_name=current_user)
+        user_data = Employer.objects.get(firm_name=current_user)
             
     if request.method == 'POST':
         phone = request.POST.get('phone', False)
@@ -920,9 +970,9 @@ def ValidateOTP(request, *args, **kwargs):
 
                 if data["Status"] == 'Success':
                     old.validated = True
-                    user_data.first().phone_verified = True
+                    user_data.phone_verified = True
                     old.save()
-                    user_data.first().save()
+                    user_data.save()
                     messages.success(request, 'OTP MATCHED. Please proceed for registration.')
                     return redirect('subscription')
                     #return Response({
@@ -956,3 +1006,39 @@ def ValidateOTP(request, *args, **kwargs):
             #            'status' : False,
             #            'detail' : 'Please provide both phone and otp for Validation'
             #        })
+
+
+@csrf_exempt
+def handlerequest(request):
+    # paytm will send you post request here
+    form = request.POST
+    response_dict = {}
+    for i in form.keys():
+        response_dict[i] = form[i]
+        if i == 'CHECKSUMHASH':
+            Checksum = form[i]
+
+    verify = checksum.verify_checksum(response_dict, MERCHANT_KEY, Checksum)
+    if verify:
+        if response_dict['RESPCODE'] == '01':
+            print('order successful')
+            current_order = Order.objects.get(id=response_dict['ORDERID'])
+            print(current_order)
+            print(response_dict['TXNID'])
+            current_order.transaction_id = response_dict['TXNID']
+            current_order.is_successful = True
+            current_order.subscription_date = response_dict['TXNDATE']
+            current_order.save()
+            current_user = User.objects.get(id=current_order.user)
+            print(current_user)
+            if current_user.username.isdigit():
+                employee = Employee.objects.get(uid=current_user.username)
+                employee.subscription_date = response_dict['TXNDATE']
+                employee.save()
+            else:
+                employer = Employer.objects.get(firm_name=current_user.username)
+                employer.subscription_date = response_dict['TXNDATE']
+                employer.save()
+        else:
+            print('order was not successful because' + response_dict['RESPMSG'])
+    return render(request, 'accounts/dashboard.html', {'response': response_dict})

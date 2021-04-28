@@ -1,7 +1,8 @@
 {% extends 'base.html' %}
-
+{% load  static %}
 {% block content %}
-
+<!-- Alert -->
+{% include 'partials/_alerts.html' %}
 <section id="subscribe" class="bg-light py-5">
     <div class="container text-center">
       <div class="home-search p-1">
@@ -32,12 +33,20 @@
         <li><i class="ion-checkmark"> </i>{{ plan.feature5 }}</li>
         <li><i class="ion-checkmark"> </i>{{ plan.feature6 }}</li>
       </ul>
-      <div class="plan-select"><a href="">Select Plan and Pay</a></div>
+      <div class="plan-select">
+        <a href="javascript:{document.getElementById('subs{{plan.id}}').submit()}" class="nav-link">
+          Select Plan and Pay </a>
+          <form action="{% url 'subscription' %}" method="POST" id="subs{{plan.id}}">
+            {% csrf_token %}
+          <input type="hidden" name="amount" value="{{ plan.price }}" required>
+          <input type="hidden" name="plan" value="{{ plan.package_name }}" required>
+          </form> 
     </div>
+</div>
       {% endfor %}
       {% endif %}
-    
-    
+      
+      
   <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
         
         </div>

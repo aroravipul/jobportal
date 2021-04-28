@@ -10,6 +10,37 @@
         <div class="col-md-12">
           <h2>Welcome {{ user.first_name}}</h2>
 
+          <!-- if there is data in the response context -->
+
+          {% if response %}
+          <div class="container" >
+            <!-- {{response}} -->
+            <div class="col my-4">
+        
+                <h2>Payment status for your subscription with order Id {{response.ORDERID}}</h2>
+                {% if response.RESPCODE == '01' %}
+                Your payment is SUCCESSFUL
+                {% else %}
+                Payment Failed
+                {% endif%}
+
+                <form action="{% url 'dashboard' %}" method="POST" id="reload">
+                  {% csrf_token %}
+                <input type="hidden" name="amount" value="{{ plan.price }}" required>
+                
+                </form> 
+                <script type="text/javascript">
+                  window.onload=function(){
+                  
+                        document.forms["reload"].submit();
+                     
+                  }
+              </script>
+            </div>
+        
+        </div>
+          {% endif %}
+
           <!-- User is a employee -->
               {% if is_employee == 'True' %}  
                   

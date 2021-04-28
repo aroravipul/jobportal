@@ -71,7 +71,7 @@ class Employee(models.Model):
     #subscription = models.CharField(max_length=50, choices=SUBSCRIPTION_CHOICES, default='0/Discounted')
     subscription_plan = models.ForeignKey(Subscription_employee, on_delete=models.DO_NOTHING, null=True, blank=True)
     referral_points = models.IntegerField(default=0)
-    subscription_date = models.DateTimeField(default=datetime.now, blank=True)
+    subscription_date = models.DateTimeField(null=True, blank=True)
     condition_agreed = models.BooleanField(default=False)
     def __str__(self):
         return self.uid

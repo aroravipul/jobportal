@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <!-- {{response}} -->
+    <div class="col my-4">
+
+        <h2>Payment status for your subscription with order Id {{response.ORDERID}}</h2>
+        {% if response.RESPCODE == '01' %}
+        Your payment is SUCCESSFUL
+        {% else %}
+        Payment Failed
+        {% endif%}
+
+    </div>
+
+</div>
+{% endblock %}

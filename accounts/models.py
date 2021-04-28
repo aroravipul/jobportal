@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.validators import RegexValidator
+from datetime import datetime
 '''from django.contrib.auth.models import AbstractUser
 '''
 # for adding custom fields in User
@@ -44,19 +45,31 @@ class Subscription_employer(models.Model):
         return self.package_name
 
 class PhoneOTP(models.Model):
+
  
-    phone_regex = RegexValidator( regex = r'^\+?1?\d{9,10}$', message ="Phone number must be entered in the format +919999999999. Up to 14 digits allowed.")
-    phone       = models.CharField(validators =[phone_regex], max_length=17, unique = True)
-    otp         = models.CharField(max_length=9, blank = True, null=True)
-    count       = models.IntegerField(default=0, help_text = 'Number of otp_sent')
-    validated   = models.BooleanField(default = False, help_text = 'If it is true, that means user have validate otp correctly in second API')
-    otp_session_id = models.CharField(max_length=120, null=True, default = "")
-    username    = models.CharField(max_length=50, blank = True, null = True, default = None )
-    #email       = models.CharField(max_length=50, null = True, blank = True, default = None) 
-    #password    = models.CharField(max_length=100, null = True, blank = True, default = None) 
+   phone_regex = RegexValidator( regex = r'^\+?1?\d{9,10}$', message ="Phone number must be entered in the format +919999999999. Up to 14 digits allowed.")
+   phone       = models.CharField(validators =[phone_regex], max_length=17, unique = True)
+   otp         = models.CharField(max_length=9, blank = True, null=True)
+   count       = models.IntegerField(default=0, help_text = 'Number of otp_sent')
+   validated   = models.BooleanField(default = False, help_text = 'If it is true, that means user have validate otp correctly in second API')
+   otp_session_id = models.CharField(max_length=120, null=True, default = "")
+   username    = models.CharField(max_length=50, blank = True, null = True, default = None )
+   #email       = models.CharField(max_length=50, null = True, blank = True, default = None) 
+   #password    = models.CharField(max_length=100, null = True, blank = True, default = None) 
 
-    
+   
 
-    def __str__(self):
-        return str(self.phone) + ' is sent ' + str(self.otp)    
+   def __str__(self):
+      return str(self.phone) + ' sent ' + str(self.otp)    
+
+# Order model which will contain an order id, price, username, is_successful,
+
+class Order(models.Model):
+   user = models.CharField(max_length=50, blank = True, null = True, default = None )
+   price = models.PositiveIntegerField()
+   transaction_id = models.CharField(max_length=100, blank=True, null=True)
+   is_successful = models.BooleanField(default = False, null = True)
+   subscription_date = models.DateTimeField(blank=True, null=True)
+   def __str__(self):
+      return str(self.id)
 

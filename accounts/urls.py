@@ -17,6 +17,7 @@ urlpatterns = [
     path('match_otp/<int:id>/<int:ad_id>', views.match_otp, name='match_otp'),
     path('subscription', views.subscription, name='subscription'),
     path('validate_phone', views.ValidatePhoneSendOTP, name='validate_phone'),
-    path('validate_otp', views.ValidateOTP, name='validate_otp')
+    path('validate_otp', views.ValidateOTP, name='validate_otp'),
+    path('handlerequest', views.handlerequest, name='handlerequest')
     #re_path('^validate_phone/', ValidatePhoneSendOTP.as_view(), name='validatephone'),
 ]

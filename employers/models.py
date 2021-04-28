@@ -40,7 +40,7 @@ class Employer(models.Model):
     #subscription = models.CharField(max_length=50, choices=SUBSCRIPTION_CHOICES, default='999/One Month/10 Contacts')
     subscription_plan = models.ForeignKey(Subscription_employer, on_delete=models.DO_NOTHING, null=True, blank=True)
     
-    subscription_date = models.DateTimeField(default=datetime.now, blank=True)
+    subscription_date = models.DateTimeField(blank=True, null=True)
     condition_agreed = models.BooleanField(default=False)
     def __str__(self):
         return self.firm_name    
